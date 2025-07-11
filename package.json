@@ -1,15 +1,26 @@
 {
   "name": "shairport-sync-reader-simple",
-  "version": "0.0.0",
+  "version": "1.0.0-beta.1",
   "description": "A simple node program to extract shairport-sync metadata via a pipe",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/bloomkd46/shairport-sync-reader-simple",
   "author": "Bloomkd46",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "20.11.1"
+    "@types/node": "20.11.1",
+    "axios": "^1.10.0",
+    "chalk": "^5.4.1",
+    "semver": "^7.7.2",
+    "simple-git": "^3.28.0",
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "yarn build",
+    "pull-check": "ts-node ./scripts/check.ts",
+    "release": "ts-node ./scripts/release.ts",
+    "fix-version": "ts-node ./scripts/version.ts"
   }
 }
