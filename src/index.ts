@@ -1,8 +1,9 @@
 import EventEmitter from 'events';
 import { createReadStream } from 'fs';
-import type { ShairportSyncMetadata } from './types';
+import type { ShairportSyncMetadata } from './interfaces';
 
-export default class ShariportSyncReaderSimple {
+export * from './interfaces';
+export default class ShairportSyncReaderSimple {
   private events = new EventEmitter();
   private xml = '';
 
