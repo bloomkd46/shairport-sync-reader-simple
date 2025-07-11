@@ -1,6 +1,6 @@
 {
   "name": "shairport-sync-reader-simple",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "description": "A simple node program to extract shairport-sync metadata via a pipe",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

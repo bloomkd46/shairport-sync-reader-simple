@@ -20,6 +20,9 @@ export default class ShairportSyncReaderSimple {
   private handleData(data: string) {
     this.xml += data;
 
+    // Normalize the XML string by removing line breaks
+    this.xml = this.xml.replace(/\r?\n|\r/g, '');
+
     const itemRegex = /<item><type>(.*?)<\/type><code>(.*?)<\/code><length>(\d+)<\/length><data encoding="base64">(.*?)<\/data><\/item>/g;
     let match;
 
@@ -71,10 +74,9 @@ export default class ShairportSyncReaderSimple {
             this.events.emit(code, data);
             break;
         }
-
-        // Remove the processed item from the XML
-        this.xml = this.xml.replace(fullMatch, '');
       }
+      // Remove the processed item from the XML
+      this.xml = this.xml.replace(fullMatch, '');
     }
   }
 
