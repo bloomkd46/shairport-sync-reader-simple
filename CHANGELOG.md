@@ -1,3 +1,6 @@
+## 1.0.0-beta.3
+* Made sure that function types are now exported
+
 ## 1.0.0-beta.2
 * Added missing type files
 
