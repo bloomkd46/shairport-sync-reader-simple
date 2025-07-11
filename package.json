@@ -3,13 +3,19 @@
   "version": "0.0.0",
   "description": "A simple node program to extract shairport-sync metadata via a pipe",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/bloomkd46/shairport-sync-reader-simple",
   "author": "Bloomkd46",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "20.11.1"
+    "@types/node": "20.11.1",
+    "ts-node": "^10.3.0"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "yarn build",
+    "pull-check": "ts-node ./scripts/check.ts",
+    "release": "ts-node ./scripts/release.ts",
+    "fix-version": "ts-node ./scripts/version.ts"
   }
 }
