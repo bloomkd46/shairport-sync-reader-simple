@@ -1,3 +1,6 @@
+## 1.0.0-beta.4
+* Added support for some core metadata
+
 ## 1.0.0-beta.3
 * Made sure that function types are now exported
 

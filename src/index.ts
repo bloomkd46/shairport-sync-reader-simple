@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { createReadStream } from 'fs';
-import type { ShairportSyncMetadata } from './interfaces';
+import type { Metadata } from './interfaces';
 
 export * from './interfaces';
 export default class ShairportSyncReaderSimple {
@@ -59,16 +59,29 @@ export default class ShairportSyncReaderSimple {
             break;
         }
       }
+      if (type === 'core') {
+        switch (code) {
+          case 'astm':
+            this.events.emit('astm', parseInt(data, 10));
+            break;
+          case 'asdk':
+            this.events.emit('asdk', parseInt(data, 10));
+            break;
+          default:
+            this.events.emit(code, data);
+            break;
+        }
 
-      // Remove the processed item from the XML
-      this.xml = this.xml.replace(fullMatch, '');
+        // Remove the processed item from the XML
+        this.xml = this.xml.replace(fullMatch, '');
+      }
     }
   }
 
   on(event: 'core', listener: (code: string, data: string) => void): this;
   on(event: 'ssnc', listener: (code: string, data: string) => void): this;
-  on<T extends keyof ShairportSyncMetadata>(event: T, listener: (data: ShairportSyncMetadata[T]) => void): this;
-  on<T extends keyof ShairportSyncMetadata>(event: T | string, listener: (codeOrData: ShairportSyncMetadata[T] | string, data: string) => void): this {
+  on<T extends keyof Metadata>(event: T, listener: (data: Metadata[T]) => void): this;
+  on<T extends keyof Metadata>(event: T | string, listener: (codeOrData: Metadata[T] | string, data: string) => void): this {
     this.events.on(event, listener);
     return this;
   }
