@@ -80,7 +80,7 @@ export default class ShairportSyncReaderSimple {
       }
 
       // Remove the processed item from the XML
-      this.xml = this.xml.replace(fullMatch, '');
+      this.xml = this.xml.substring(this.xml.indexOf(fullMatch) + fullMatch.length);
     }
 
     this.isProcessing = false;
