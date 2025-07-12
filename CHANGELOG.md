@@ -1,3 +1,6 @@
+## 1.0.0-beta.8
+* Made the existing sync loops capable of reading the new data containing newlines
+
 ## 1.0.0-beta.7
 * Re-added the newline normalization to the XML string to ensure proper parsing (It somehow vanished in the last commit)
 
