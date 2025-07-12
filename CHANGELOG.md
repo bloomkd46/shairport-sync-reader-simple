@@ -1,3 +1,6 @@
+## 1.0.0-beta.7
+* Re-added the newline normalization to the XML string to ensure proper parsing (It somehow vanished in the last commit)
+
 ## 1.0.0-beta.6
 * Fixed a bug causing some events to be emitted multiple times due to overlapping async loops
 
