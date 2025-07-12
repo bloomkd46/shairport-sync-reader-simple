@@ -1,3 +1,6 @@
+## 1.0.0-beta.10
+* Modified the parser to match events that don't have a XML data element.
+
 ## 1.0.0-beta.9
 * Fixed a bug causing some metadata to be lost due to incorrect XML processing (it would remain on the XML string indefinitely, which was also (in theory) causing memory leaks)
 
