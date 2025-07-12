@@ -26,7 +26,7 @@ export default class ShairportSyncReaderSimple {
 
     this.isProcessing = true;
 
-    const itemRegex = /<item><type>(.*?)<\/type><code>(.*?)<\/code><length>(\d+)<\/length><data encoding="base64">(.*?)<\/data><\/item>/g;
+    const itemRegex = /<item><type>(.*?)<\/type><code>(.*?)<\/code><length>(\d+)<\/length>(?:<data encoding="base64">(.*?)<\/data>)?<\/item>/g;
     let match;
 
     while ((match = itemRegex.exec(this.xml)) !== null) {
@@ -34,53 +34,56 @@ export default class ShairportSyncReaderSimple {
 
       const type = Buffer.from(typeHex, 'hex').toString('utf8');
       const code = Buffer.from(codeHex, 'hex').toString('utf8');
-      const data = Buffer.from(base64Data, 'base64').toString('utf8');
+      const data = base64Data ? Buffer.from(base64Data, 'base64').toString('utf8') : null;
 
       this.events.emit(type, code, data);
-
-      if (type === 'ssnc') {
-        switch (code) {
-          case 'pvol':
-            const [airplayVolume, volume, lowestVolume, highestVolume] = data.split(',');
-            this.events.emit('pvol', {
-              airplayVolume: parseFloat(airplayVolume),
-              volume: parseFloat(volume),
-              lowestVolume: parseFloat(lowestVolume),
-              highestVolume: parseFloat(highestVolume)
-            });
-            break;
-          case 'prgr':
-            const [start, current, end] = data.split(',').map(Number);
-            this.events.emit('prgr', { start, current, end });
-            break;
-          case 'mdst':
-          case 'mden':
-          case 'pcst':
-          case 'pcen':
-            const timestamp = parseInt(data, 10);
-            this.events.emit(code, isNaN(timestamp) ? null : timestamp);
-            break;
-          default:
-            this.events.emit(code, data);
-            break;
+      if (data) {
+        if (type === 'ssnc') {
+          switch (code) {
+            case 'pvol':
+              const [airplayVolume, volume, lowestVolume, highestVolume] = data.split(',');
+              this.events.emit('pvol', {
+                airplayVolume: parseFloat(airplayVolume),
+                volume: parseFloat(volume),
+                lowestVolume: parseFloat(lowestVolume),
+                highestVolume: parseFloat(highestVolume)
+              });
+              break;
+            case 'prgr':
+              const [start, current, end] = data.split(',').map(Number);
+              this.events.emit('prgr', { start, current, end });
+              break;
+            case 'mdst':
+            case 'mden':
+            case 'pcst':
+            case 'pcen':
+              const timestamp = parseInt(data, 10);
+              this.events.emit(code, isNaN(timestamp) ? null : timestamp);
+              break;
+            default:
+              this.events.emit(code, data);
+              break;
+          }
         }
-      }
-      if (type === 'core') {
-        switch (code) {
-          case 'astm':
-            this.events.emit('astm', parseInt(data, 10));
-            break;
-          case 'asdk':
-            this.events.emit('asdk', parseInt(data, 10));
-            break;
-          default:
-            this.events.emit(code, data);
-            break;
+        if (type === 'core') {
+          switch (code) {
+            case 'astm':
+              this.events.emit('astm', parseInt(data, 10));
+              break;
+            case 'asdk':
+              this.events.emit('asdk', parseInt(data, 10));
+              break;
+            default:
+              this.events.emit(code, data);
+              break;
+          }
         }
+      } else {
+        this.events.emit(code);
       }
 
       // Remove the processed item from the XML
-      this.xml = this.xml.substring(this.xml.indexOf(fullMatch) + fullMatch.length);
+      this.xml = this.xml.substring(this.xml.indexOf(fullMatch) + fullMatch.length); //this.xml.replace(fullMatch, ''); 
     }
 
     this.isProcessing = false;
