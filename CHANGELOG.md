@@ -1,3 +1,6 @@
+## 1.0.0-beta.6
+* Fixed a bug causing some events to be emitted multiple times due to overlapping async loops
+
 ## 1.0.0-beta.5
 * Fixed a bug causing newlines to break the parser
 * Fixed a bug causing the matched section to not be removed from the XML string after processing
