@@ -5,7 +5,7 @@ import type { Metadata } from './interfaces';
 export * from './interfaces';
 export default class ShairportSyncReaderSimple {
   private events = new EventEmitter();
-  private xml = '';
+  private xmlCache = '';
 
   /**
    * 
@@ -13,23 +13,34 @@ export default class ShairportSyncReaderSimple {
    */
   constructor(pipe: string) {
     createReadStream(pipe, { encoding: 'utf8' })
-      .on('data', (data: string) => this.handleData(data))
+      .on('data', (data: string) => {
+        this.xmlCache += data.replace(/\r?\n|\r/g, '');
+        let firstItem = this.xmlCache.indexOf('<item>');
+        let lastItem = this.xmlCache.lastIndexOf('</item>');
+        const itemLength = '</item>'.length;
+        if (firstItem > 0) {
+          console.warn('WARNING: An item did not contain the proper start sequence "<item>".');
+          console.warn('WARNING: This incomplete item will be ignored.');
+          this.xmlCache = this.xmlCache.substring(firstItem); // Remove everything before the first tag
+          firstItem = this.xmlCache.indexOf('<item>'); // Recalculate firstItem after trimming
+          lastItem = this.xmlCache.lastIndexOf('</item>'); // Recalculate lastItem after trimming
+        }
+        if (firstItem === -1 || lastItem === -1) {
+          return; // Not enough data to process
+        }
+        const xml = this.xmlCache.substring(firstItem, lastItem + itemLength);
+        this.xmlCache = this.xmlCache.substring(lastItem + itemLength); // Remove processed XML
+        this.handleData(xml);
+      })
       .on('error', (err: Error) => this.events.emit('error', err));
   }
 
-  private isProcessing = false;
 
-  private handleData(data: string) {
-    this.xml += data.replace(/\r?\n|\r/g, '');
-
-    if (this.isProcessing) return;
-
-    this.isProcessing = true;
-
+  private handleData(xml: string) {
     const itemRegex = /<item><type>(.*?)<\/type><code>(.*?)<\/code><length>(\d+)<\/length>(?:<data encoding="base64">(.*?)<\/data>)?<\/item>/g;
     let match;
 
-    while ((match = itemRegex.exec(this.xml)) !== null) {
+    while ((match = itemRegex.exec(xml)) !== null) {
       const [fullMatch, typeHex, codeHex, length, base64Data] = match;
 
       const type = Buffer.from(typeHex, 'hex').toString('utf8');
@@ -83,10 +94,9 @@ export default class ShairportSyncReaderSimple {
       }
 
       // Remove the processed item from the XML
-      this.xml = this.xml.substring(this.xml.indexOf(fullMatch) + fullMatch.length); //this.xml.replace(fullMatch, ''); 
+      xml = xml.replace(fullMatch, ''); //data.substring(data.indexOf(fullMatch) + fullMatch.length);
+      itemRegex.lastIndex = 0; // Reset regex index to allow for multiple matches in the same data chunk  
     }
-
-    this.isProcessing = false;
   }
 
   on(event: 'core', listener: (code: string, data: string) => void): this;
