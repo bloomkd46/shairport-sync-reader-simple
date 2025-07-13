@@ -1,3 +1,6 @@
+## 1.0.1-beta.1
+* Completely redesigned the XML parsing to ensure that unusable items are removed and that ALL complete items are processed correctly
+
 ## 1.0.0-beta.10
 * Modified the parser to match events that don't have a XML data element.
 
